@@ -16,12 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-using System.IO;
-using System.Net.Sockets;
-using System.Threading;
-
 namespace uhttpsharp
 {
+    using System.IO;
+    using System.Net.Sockets;
+    using System.Threading;
+
     public sealed class HttpClient
     {
         private readonly TcpClient _client;
@@ -69,7 +69,9 @@ namespace uhttpsharp
                     }
                 }
                 else
+                {
                     _client.Close();
+                }
             }
         }
     }

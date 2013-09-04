@@ -22,11 +22,11 @@ using System.Reflection;
 
 namespace uhttpsharp
 {
-    internal sealed class HttpRouter
+    public sealed class HttpRouter
     {
-        private readonly Dictionary<string, HttpRequestHandler> _handlers = new Dictionary<string, HttpRequestHandler>();
+        private readonly Dictionary<string, IHttpHandler> _handlers = new Dictionary<string, IHttpHandler>();
 
-        public HttpRouter()
+        internal HttpRouter()
         {
             RegisterHandlers();
         }
@@ -35,10 +35,12 @@ namespace uhttpsharp
         {
             return HttpResponse.CreateWithMessage(HttpResponseCode.NotFound, "Not Found");
         }
+
         private HttpResponse DefaultIndex()
         {
             return HttpResponse.CreateWithMessage(HttpResponseCode.Ok, "Welcome to uhttpsharp!");
         }
+
         public HttpResponse Route(HttpRequest request)
         {
             var function = request.Parameters.Function;
@@ -49,31 +51,38 @@ namespace uhttpsharp
                 RouteToFunction(request, "404") ??
                 DefaultError();
         }
-        private HttpResponse RouteToFunction(HttpRequest request, string function)
+
+        private HttpContext RouteToFunction(HttpRequest request, string function)
         {
-            HttpRequestHandler handler;
+            IHttpHandler handler;
+            var context = new HttpContext
+            {
+                Request = request,
+            };
+
             if (_handlers.TryGetValue(function, out handler))
-                return handler.Handle(request);
-            return null;
+                context.Response = handler.Handle(request);
+            return ;
         }
+
         private void RegisterHandlers()
         {
-            foreach (var t in Assembly.GetEntryAssembly().GetTypes())
+            foreach (var type in Assembly.GetEntryAssembly().GetTypes())
             {
-                if (t.IsSubclassOf(typeof(HttpRequestHandler)))
+                if (type.IsSubclassOf(typeof(HttpRequestHandler)))
                 {
                     try
                     {
-                        var attributes = t.GetCustomAttributes(typeof(HttpRequestHandlerAttributes), true);
+                        var attributes = type.GetCustomAttributes(typeof(HttpRequestHandlerAttributes), true);
                         if (attributes.Length > 0)
                         {
-                            var handler = (HttpRequestHandler)Activator.CreateInstance(t);
+                            var handler = (HttpRequestHandler)Activator.CreateInstance(type);
                             _handlers.Add(((HttpRequestHandlerAttributes)attributes[0]).Function, handler);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine(string.Format("Exception during activating the IHttpRequestHandler: {0} - {1}", t, e));
+                        Console.WriteLine(string.Format("Exception during activating the IHttpRequestHandler: {0} - {1}", type, ex));
                     }
                 }
             }

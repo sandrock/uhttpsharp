@@ -46,10 +46,12 @@ namespace uhttpsharp
             : this(code, "text/html; charset=utf-8", StringToStream(content))
         {
         }
+
         public HttpResponse(string contentType, Stream contentStream)
             : this(HttpResponseCode.Ok, contentType, contentStream)
         {
         }
+
         private HttpResponse(HttpResponseCode code, string contentType, Stream contentStream)
         {
             Protocol = "HTTP/1.1";
@@ -68,6 +70,7 @@ namespace uhttpsharp
                     "<html><head><title>{0}</title></head><body><h1>{1}</h1><hr><b>{0}</b>{2}</body></html>",
                     HttpServer.Instance.Banner, message, body));
         }
+
         private static Stream StringToStream(string content)
         {
             var stream = new MemoryStream();
@@ -76,10 +79,11 @@ namespace uhttpsharp
             writer.Flush();
             return stream;
         }
+
         public void WriteResponse(Stream stream)
         {
-            var writer = new StreamWriter(stream) {NewLine = "\r\n"};
-            writer.WriteLine("{0} {1} {2}", Protocol, (int) Code, _responseTexts[(int) Code]);
+            var writer = new StreamWriter(stream) { NewLine = "\r\n" };
+            writer.WriteLine("{0} {1} {2}", Protocol, (int)Code, _responseTexts[(int)Code]);
             writer.WriteLine("Date: {0}", DateTime.UtcNow.ToString("R"));
             writer.WriteLine("Server: {0}", HttpServer.Instance.Banner);
             writer.WriteLine("Connection: {0}", CloseConnection ? "close" : "Keep-Alive");

@@ -16,54 +16,104 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Threading;
-
 namespace uhttpsharp
 {
-    public sealed class HttpServer
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Reflection;
+    using System.Threading;
+    using System.Diagnostics;
+
+    public class HttpServer : IDisposable
     {
-        public static readonly HttpServer Instance = new HttpServer();
-
-        public int Port = 80;
         public string Banner = string.Empty;
+        private bool isDisposed;
+        private TcpListener listener;
+        private bool isActive;
+        private Thread serverThread;
 
-        private TcpListener _listener;
-        private bool _isActive;
-
-        public string Address
+        public HttpServer(IPAddress address, int port)
         {
-            get { return string.Format("{0}:{1}", IPAddress.Loopback, Port); }
+            this.Address = address;
+            this.Port = port;
+            this.Banner = string.Format("uhttpsharp {0}", Assembly.GetExecutingAssembly().GetName().Version);
+            this.Router = new HttpRouter();
         }
 
-        private HttpServer()
-        {
-            Banner = string.Format("uhttpsharp {0}", Assembly.GetExecutingAssembly().GetName().Version);
-        }
+        public IPAddress Address { get; set; }
 
-        public void StartUp()
+        public int Port { get; set; }
+
+        public HttpRouter Router { get; private set; }
+
+        public void Start()
         {
-            if (_isActive)
+            if (this.isActive)
                 return;
-            _listener = new TcpListener(IPAddress.Loopback, Port);
-            _listener.Start();
-            var serverThread = new Thread(Listen) {IsBackground = true};
-            serverThread.Start();
+            this.listener = new TcpListener(IPAddress.Loopback, Port);
+            this.listener.Start();
+            this.serverThread = new Thread(Listen)
+            {
+                IsBackground = true,
+            };
+            this.serverThread.Start();
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true, TimeSpan.FromSeconds(60D));
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(TimeSpan timeout)
+        {
+            this.Dispose(true, timeout);
+            GC.SuppressFinalize(this);
+        }
+
+        public override string ToString()
+        {
+            return this.GetType().Name + " " + this.Address.ToString() + ":" + this.Port.ToString();
+        }
+
+        protected virtual void Dispose(bool disposing, TimeSpan timeout)
+        {
+            if (!this.isDisposed)
+            {
+                if (disposing)
+                {
+                    this.isActive = false;
+
+                    if (this.listener != null)
+                    {
+                        this.listener.Stop();
+                        this.listener = null;
+                    }
+
+                    if (this.serverThread != null)
+                    {
+                        this.serverThread.Join(timeout);
+                        this.serverThread = null;
+                    }
+                }
+
+                this.isDisposed = true;
+            }
         }
 
         private void Listen()
         {
-            _isActive = true;
+            this.isActive = true;
 
-            Console.WriteLine(string.Format("Embedded httpserver started.. [{0}:{1}]", IPAddress.Loopback, Port));
+            Trace.TraceInformation(this.ToString() + " is now listenning.");
 
-            while (_isActive)
+            while (this.isActive)
             {
-                new HttpClient(_listener.AcceptTcpClient());
+                new HttpClient(listener.AcceptTcpClient());
             }
+
+            Trace.TraceInformation(this.ToString() + " is not listenning anymore.");
         }
     }
 }

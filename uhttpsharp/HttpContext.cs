@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2011 uhttpsharp project - http://github.com/raistlinthewiz/uhttpsharp
  *
  * This library is free software; you can redistribute it and/or
@@ -19,23 +19,16 @@
 namespace uhttpsharp
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
 
-    public class HttpRequestHandler : IHttpHandler
+    public class HttpContext
     {
-        public virtual void Handle(HttpContext context)
-        {
-            throw new NotSupportedException("This method must be overriden in a subclass.");
-        }
-    }
+        public HttpServer Server { get; set; }
 
-    [AttributeUsage(AttributeTargets.Class)]
-    public class HttpRequestHandlerAttributes : Attribute
-    {
-        public string Function { get; private set; }
+        public HttpRequest Request { get; set; }
 
-        public HttpRequestHandlerAttributes(string functionName)
-        {
-            this.Function = functionName;
-        }
+        public HttpResponse Response { get; set; }
     }
 }

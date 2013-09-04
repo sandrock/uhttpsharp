@@ -19,6 +19,7 @@
 using System;
 using System.Net.Sockets;
 using uhttpsharp;
+using System.Net;
 
 namespace uhttpsharpdemo
 {
@@ -26,12 +27,15 @@ namespace uhttpsharpdemo
     {
         private static void Main()
         {
+            ConsoleTraceListener.Bind();
+
+            HttpServer server = null;
             for (var port = 8000; port <= 65535; ++port)
             {
-                HttpServer.Instance.Port = port;
+                server = new HttpServer(IPAddress.Loopback, port);
                 try
                 {
-                    HttpServer.Instance.StartUp();
+                    server.Start();
                 }
                 catch (SocketException)
                 {
@@ -39,7 +43,13 @@ namespace uhttpsharpdemo
                 }
                 break;
             }
+
+            Console.WriteLine("Hit return to exit");
             Console.ReadLine();
+
+            Console.WriteLine("Stopping...");
+            server.Dispose(); // TODO: this should be waiting for requests to end
+            Console.WriteLine("Stopped.");
         }
     }
 }

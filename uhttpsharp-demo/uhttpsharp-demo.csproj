@@ -47,6 +47,7 @@
       <Link>Properties\AssemblyCommon.cs</Link>
     </Compile>
     <Compile Include="AboutHandler.cs" />
+    <Compile Include="ConsoleTraceListener.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="IndexHandler.cs" />
