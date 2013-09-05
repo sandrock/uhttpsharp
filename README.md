@@ -1,5 +1,19 @@
 # uhttpsharp
 
+## In this branch
+
+A few changes I'm making for another project:
+
+* Allow multiple instances (on multiple TCP/IP ports)
+* Allow bit of IoC
+* Use lambdas to define routes
+* Convert the HttpHandler class to a IHttpHandler interface
+* Create a HttpContext class to simplify IHttpHandler
+
+__Source code is not usable at this time (compile errors).__
+
+## License
+
 A very lightweight & simple embedded http server for c# 
 
 Copyright (C) 2011 uhttpsharp project
