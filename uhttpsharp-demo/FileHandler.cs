@@ -33,16 +33,26 @@ namespace uhttpsharpdemo
         {
             DefaultMimeType = "text/plain";
             MimeTypes = new Dictionary<string, string>
-                            {
-                                {".css", "text/css"},
-                                {".gif", "image/gif"},
-                                {".htm", "text/html"},
-                                {".html", "text/html"},
-                                {".jpg", "image/jpeg"},
-                                {".js", "application/javascript"},
-                                {".png", "image/png"},
-                                {".xml", "application/xml"},
-                            };
+            {
+                {".css", "text/css"},
+                {".gif", "image/gif"},
+                {".htm", "text/html"},
+                {".html", "text/html"},
+                {".jpg", "image/jpeg"},
+                {".js", "application/javascript"},
+                {".png", "image/png"},
+                {".xml", "application/xml"},
+            };
+        }
+
+        public override HttpResponse Handle(HttpContext context)
+        {
+            var httpRoot = Path.GetFullPath(HttpRootDirectory ?? ".");
+            var requestPath = context.Request.Uri.AbsolutePath.TrimStart('/');
+            var path = Path.GetFullPath(Path.Combine(httpRoot, requestPath));
+            if (!File.Exists(path))
+                return null;
+            return new HttpResponse(context, GetContentType(path), File.OpenRead(path));
         }
 
         private string GetContentType(string path)
@@ -51,15 +61,6 @@ namespace uhttpsharpdemo
             if (MimeTypes.ContainsKey(extension))
                 return MimeTypes[extension];
             return DefaultMimeType;
-        }
-        public override HttpResponse Handle(HttpRequest httpRequest)
-        {
-            var httpRoot = Path.GetFullPath(HttpRootDirectory ?? ".");
-            var requestPath = httpRequest.Uri.AbsolutePath.TrimStart('/');
-            var path = Path.GetFullPath(Path.Combine(httpRoot, requestPath));
-            if (!File.Exists(path))
-                return null;
-            return new HttpResponse(GetContentType(path), File.OpenRead(path));
         }
     }
 }

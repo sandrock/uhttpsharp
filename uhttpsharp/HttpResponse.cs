@@ -42,17 +42,17 @@ namespace uhttpsharp
         public HttpResponseCode Code { get; private set; }
         private Stream ContentStream { get; set; }
 
-        public HttpResponse(HttpResponseCode code, string content)
-            : this(code, "text/html; charset=utf-8", StringToStream(content))
+        public HttpResponse(HttpContext context, HttpResponseCode code, string content)
+            : this(context, code, "text/html; charset=utf-8", StringToStream(content))
         {
         }
 
-        public HttpResponse(string contentType, Stream contentStream)
-            : this(HttpResponseCode.Ok, contentType, contentStream)
+        public HttpResponse(HttpContext context, string contentType, Stream contentStream)
+            : this(context, HttpResponseCode.Ok, contentType, contentStream)
         {
         }
 
-        private HttpResponse(HttpResponseCode code, string contentType, Stream contentStream)
+        private HttpResponse(HttpContext context, HttpResponseCode code, string contentType, Stream contentStream)
         {
             Protocol = "HTTP/1.1";
             ContentType = contentType;
@@ -62,13 +62,14 @@ namespace uhttpsharp
             ContentStream = contentStream;
         }
 
-        public static HttpResponse CreateWithMessage(HttpResponseCode code, string message, string body = "")
+        public static HttpResponse CreateWithMessage(HttpContext context, HttpResponseCode code, string message, string body = "")
         {
             return new HttpResponse(
+                context,
                 code,
                 string.Format(
                     "<html><head><title>{0}</title></head><body><h1>{1}</h1><hr><b>{0}</b>{2}</body></html>",
-                    HttpServer.Instance.Banner, message, body));
+                    context.Server.Banner, message, body));
         }
 
         private static Stream StringToStream(string content)
@@ -80,12 +81,12 @@ namespace uhttpsharp
             return stream;
         }
 
-        public void WriteResponse(Stream stream)
+        public void WriteResponse(HttpContext context, Stream stream)
         {
             var writer = new StreamWriter(stream) { NewLine = "\r\n" };
             writer.WriteLine("{0} {1} {2}", Protocol, (int)Code, _responseTexts[(int)Code]);
             writer.WriteLine("Date: {0}", DateTime.UtcNow.ToString("R"));
-            writer.WriteLine("Server: {0}", HttpServer.Instance.Banner);
+            writer.WriteLine("Server: {0}", context.Server.Banner);
             writer.WriteLine("Connection: {0}", CloseConnection ? "close" : "Keep-Alive");
             writer.WriteLine("Content-Type: {0}", ContentType);
             writer.WriteLine("Content-Length: {0}", ContentStream.Length);

@@ -110,7 +110,11 @@ namespace uhttpsharp
 
             while (this.isActive)
             {
-                new HttpClient(listener.AcceptTcpClient());
+                var context = new HttpContext
+                {
+                    Server = this,
+                };
+                new HttpClient(context, listener.AcceptTcpClient());
             }
 
             Trace.TraceInformation(this.ToString() + " is not listenning anymore.");

@@ -24,7 +24,7 @@ namespace uhttpsharp
 {
     public sealed class HttpRequest
     {
-        public bool Valid { get; private set; }
+        public bool IsValid { get; private set; }
         public Dictionary<string, string> Headers { get; private set; }
         public HttpMethod HttpMethod { get; private set; }
         public string HttpProtocol { get; private set; }
@@ -38,12 +38,12 @@ namespace uhttpsharp
         {
             Headers = new Dictionary<string, string>();
             _stream = stream;
-            Process();
+            ////Process();
         }
 
-        private void Process()
+        internal void Process(HttpContext context)
         {
-            Valid = false;
+            IsValid = false;
 
             // parse the http request
             var request = ReadLine();
@@ -69,7 +69,7 @@ namespace uhttpsharp
 
             HttpProtocol = tokens[2];
             URL = tokens[1];
-            Uri = new Uri("http://" + HttpServer.Instance.Address + "/" + URL.TrimStart('/'));
+            Uri = new Uri("http://" + context.Server.Address + "/" + URL.TrimStart('/'));
             Parameters = new HttpRequestParameters(URL);
 
             Console.WriteLine(string.Format("[{0}:{1}] URL: {2}", HttpProtocol, HttpMethod, URL));
@@ -83,7 +83,7 @@ namespace uhttpsharp
                 Headers.Add(keys[0], keys[1]);
             }
 
-            Valid = true;
+            IsValid = true;
         }
 
         private string ReadLine()

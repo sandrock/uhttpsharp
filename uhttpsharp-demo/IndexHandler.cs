@@ -23,9 +23,9 @@ namespace uhttpsharpdemo
     [HttpRequestHandlerAttributes("")]
     public class IndexHandler : HttpRequestHandler
     {
-        public override HttpResponse Handle(HttpRequest httpRequest)
+        public override HttpResponse Handle(HttpContext context)
         {
-            return new HttpResponse(HttpResponseCode.Ok, "Welcome to the Index. ☺");
+            return new HttpResponse(context, HttpResponseCode.Ok, "Welcome to the Index. ☺");
         }
     }
 }

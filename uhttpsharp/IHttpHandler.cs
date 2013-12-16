@@ -25,6 +25,6 @@ namespace uhttpsharp
 
     public interface IHttpHandler
     {
-        void Handle(HttpContext context);
+        HttpResponse Handle(HttpContext context);
     }
 }

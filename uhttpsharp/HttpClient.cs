@@ -28,15 +28,20 @@ namespace uhttpsharp
         private readonly Stream _inputStream;
         private readonly Stream _outputStream;
         private readonly HttpRouter _router;
+        private readonly HttpContext context;
 
-        public HttpClient(TcpClient client)
+        public HttpClient(HttpContext context, TcpClient client)
         {
-            _client = client;
-            _inputStream = new BufferedStream(_client.GetStream());
-            _outputStream = _client.GetStream();
-            _router = new HttpRouter();
+            this._client = client;
+            this.context = context;
+            this._inputStream = new BufferedStream(this._client.GetStream());
+            this._outputStream = this._client.GetStream();
+            this._router = new HttpRouter(); // TODO: extract router instantiation
 
-            var clientThread = new Thread(Process) {IsBackground = true};
+            var clientThread = new Thread(this.Process)
+            {
+                IsBackground = true,
+            };
             clientThread.Start();
         }
 
@@ -54,18 +59,25 @@ namespace uhttpsharp
                 // Socket exceptions on read will be re-thrown as IOException by BufferedStream
             }
         }
+
         private void ProcessInternal()
         {
             while (_client.Connected)
             {
                 var request = new HttpRequest(_inputStream);
-                if (request.Valid)
+                request.Process(context);
+                this.context.Request = request;
+                if (request.IsValid)
                 {
-                    var response = _router.Route(request);
+                    var response = _router.Route(context);
+                    this.context.Response = response;
                     if (response != null)
                     {
-                        response.WriteResponse(_outputStream);
-                        if (response.CloseConnection) _client.Close();
+                        response.WriteResponse(context, _outputStream);
+                        if (response.CloseConnection)
+                        {
+                            _client.Close();
+                        }
                     }
                 }
                 else

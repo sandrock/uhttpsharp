@@ -23,9 +23,9 @@ namespace uhttpsharpdemo
     [HttpRequestHandlerAttributes("404")]
     public class ErrorHandler : HttpRequestHandler
     {
-        public override HttpResponse Handle(HttpRequest httpRequest)
+        public override HttpResponse Handle(HttpContext context)
         {
-            return new HttpResponse(HttpResponseCode.NotFound, "These are not the droids you are looking for.");
+            return new HttpResponse(context, HttpResponseCode.NotFound, "These are not the droids you are looking for.");
         }
     }
 }

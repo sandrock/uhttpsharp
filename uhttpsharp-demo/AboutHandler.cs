@@ -23,9 +23,9 @@ namespace uhttpsharpdemo
     [HttpRequestHandlerAttributes("about")]
     public class AboutHandler : HttpRequestHandler
     {
-        public override HttpResponse Handle(HttpRequest httpRequest)
+        public override HttpResponse Handle(HttpContext context)
         {
-            return HttpResponse.CreateWithMessage(HttpResponseCode.Ok, "Sample http-request-handler");
+            return HttpResponse.CreateWithMessage(context, HttpResponseCode.Ok, "Sample http-request-handler");
         }
     }
 }

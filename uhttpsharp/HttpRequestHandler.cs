@@ -22,7 +22,7 @@ namespace uhttpsharp
 
     public class HttpRequestHandler : IHttpHandler
     {
-        public virtual void Handle(HttpContext context)
+        public virtual HttpResponse Handle(HttpContext context)
         {
             throw new NotSupportedException("This method must be overriden in a subclass.");
         }

@@ -31,38 +31,40 @@ namespace uhttpsharp
             RegisterHandlers();
         }
 
-        private HttpResponse DefaultError()
+        private HttpResponse DefaultError(HttpContext context)
         {
-            return HttpResponse.CreateWithMessage(HttpResponseCode.NotFound, "Not Found");
+            return HttpResponse.CreateWithMessage(context, HttpResponseCode.NotFound, "Not Found");
         }
 
-        private HttpResponse DefaultIndex()
+        private HttpResponse DefaultIndex(HttpContext context)
         {
-            return HttpResponse.CreateWithMessage(HttpResponseCode.Ok, "Welcome to uhttpsharp!");
+            return HttpResponse.CreateWithMessage(context, HttpResponseCode.Ok, "Welcome to uhttpsharp!");
         }
 
-        public HttpResponse Route(HttpRequest request)
+        public HttpResponse Route(HttpContext context)
         {
+            var request = context.Request;
             var function = request.Parameters.Function;
             return
-                RouteToFunction(request, function) ??
-                RouteToFunction(request, "*") ??
-                (string.IsNullOrEmpty(function) ? (RouteToFunction(request, "") ?? DefaultIndex()) : null) ??
-                RouteToFunction(request, "404") ??
-                DefaultError();
+                RouteToFunction(context, function) ??
+                RouteToFunction(context, "*") ??
+                (string.IsNullOrEmpty(function) ? (RouteToFunction(context, "") ?? DefaultIndex(context)) : null) ??
+                RouteToFunction(context, "404") ??
+                DefaultError(context);
         }
 
-        private HttpContext RouteToFunction(HttpRequest request, string function)
+        private HttpResponse RouteToFunction(HttpContext context, string function)
         {
+            var request = context.Request;
             IHttpHandler handler;
-            var context = new HttpContext
-            {
-                Request = request,
-            };
 
             if (_handlers.TryGetValue(function, out handler))
-                context.Response = handler.Handle(request);
-            return ;
+            {
+                context.Response = handler.Handle(context);
+                return context.Response;
+            }
+
+            return null;
         }
 
         private void RegisterHandlers()
