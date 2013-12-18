@@ -42,8 +42,8 @@ namespace uhttpsharp
         public HttpResponseCode Code { get; private set; }
         private Stream ContentStream { get; set; }
 
-        public HttpResponse(HttpContext context, HttpResponseCode code, string content)
-            : this(context, code, "text/html; charset=utf-8", StringToStream(content))
+        public HttpResponse(HttpContext context, HttpResponseCode code, string content, string contentType = "text/html; charset=utf-8")
+            : this(context, code, contentType, StringToStream(content))
         {
         }
 

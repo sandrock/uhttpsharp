@@ -114,7 +114,16 @@ namespace uhttpsharp
                 {
                     Server = this,
                 };
-                new HttpClient(context, listener.AcceptTcpClient());
+                try
+                {
+                    var client = listener.AcceptTcpClient();
+                    new HttpClient(context, client);
+                }
+                catch (SocketException ex)
+                {
+                    // "A blocking operation was interrupted by a call to WSACancelBlockingCall"
+                    // occurs during shutdown
+                }
             }
 
             Trace.TraceInformation(this.ToString() + " is not listenning anymore.");
