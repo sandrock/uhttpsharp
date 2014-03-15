@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace uhttpsharp
 {
@@ -84,7 +85,7 @@ namespace uhttpsharp
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(string.Format("Exception during activating the IHttpRequestHandler: {0} - {1}", type, ex));
+                        Trace.TraceError(string.Format("Exception during activating the IHttpRequestHandler: {0} - {1}", type, ex));
                     }
                 }
             }

@@ -1,20 +1,18 @@
 # uhttpsharp
 
+A very lightweight & simple embedded http server for c# 
+
 ## In this branch
 
-A few changes I'm making for another project:
+A few changes I'm making for [another project](https://github.com/sandrock/MarkDownBrowser/):
 
 * Allow multiple instances (on multiple TCP/IP ports)
-* Allow bit of IoC
-* Use lambdas to define routes
+  * Bye bye static stuff  
+* Allow bit of IoC 
 * Convert the HttpHandler class to a IHttpHandler interface
 * Create a HttpContext class to simplify IHttpHandler
 
-__Source code is not usable at this time (compile errors).__
-
 ## License
-
-A very lightweight & simple embedded http server for c# 
 
 Copyright (C) 2011 uhttpsharp project
 

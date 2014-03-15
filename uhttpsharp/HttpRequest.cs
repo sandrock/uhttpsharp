@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 
 namespace uhttpsharp
 {
@@ -53,7 +54,7 @@ namespace uhttpsharp
 
             if (tokens.Length != 3)
             {
-                Console.WriteLine("httpserver: invalid http request.");
+                Trace.TraceError("httpserver: invalid http request.");
                 return;
             }
 
@@ -72,7 +73,7 @@ namespace uhttpsharp
             Uri = new Uri("http://" + context.Server.Address + "/" + URL.TrimStart('/'));
             Parameters = new HttpRequestParameters(URL);
 
-            Console.WriteLine(string.Format("[{0}:{1}] URL: {2}", HttpProtocol, HttpMethod, URL));
+            Trace.TraceInformation(string.Format("[{0}:{1}] URL: {2}", HttpProtocol, HttpMethod, URL));
 
             // get the headers
             string line;
